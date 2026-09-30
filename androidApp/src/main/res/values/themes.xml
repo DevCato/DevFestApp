@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- La app solo tiene tema claro (constitución, Principio IV). -->
+    <style name="Theme.DevFest" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/devfest_background</item>
+    </style>
+
+    <color name="devfest_background">#F1F1F1</color>
+</resources>

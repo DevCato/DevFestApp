@@ -1,0 +1,315 @@
+openapi: 3.1.0
+info:
+  title: DevFest Lima 2026 — API de la app de asistentes
+  version: 0.1.0
+  description: |
+    Contrato propuesto a partir del diseño (https://claude.ai/artifact/H9uMTBqaSt4rxrX6XVxxyV).
+    Es el punto de partida para el backend propio. Si el backend real difiere, la app agrega
+    un adapter en la capa de datos; las pantallas no cambian.
+
+    Convenciones:
+    - Autenticación: `Authorization: Bearer <Firebase ID token>` en todos los endpoints.
+    - Fechas y horas en ISO 8601 con offset de Lima (`2026-11-21T09:30:00-05:00`).
+    - Textos en español, listos para mostrar.
+    - Errores con el esquema `Error`.
+servers:
+  - url: https://api.example.com/v1
+    description: Placeholder — reemplazar por la URL real del backend
+
+security:
+  - firebaseIdToken: []
+
+paths:
+  /event:
+    get:
+      summary: Datos del evento
+      operationId: getEvent
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Event' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /agenda:
+    get:
+      summary: Agenda completa del día (tracks + sesiones)
+      description: |
+        Devuelve todas las sesiones del 21 de noviembre. `isLive` lo controla el administrador desde el panel.
+        La app cachea la respuesta para usarla sin conexión.
+      operationId: getAgenda
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Agenda' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /me:
+    get:
+      summary: Usuario actual con su saldo y posición
+      operationId: getMe
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Me' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /gems/info:
+    get:
+      summary: Contenido informativo de Mis gemas (cómo ganar gemas y premios)
+      operationId: getGemsInfo
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/GemsInfo' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /scans:
+    post:
+      summary: Registrar un código QR escaneado
+      description: |
+        El backend valida el código, verifica que el usuario no lo haya usado y decide cuántas gemas otorga.
+        La app muestra exactamente `gemsAwarded` y `newBalance`.
+      operationId: postScan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [code]
+              properties:
+                code:
+                  type: string
+                  description: Contenido crudo del QR.
+                  example: "DFL26-TALK-t5-7f3a"
+      responses:
+        '200':
+          description: Gemas sumadas
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ScanAwarded' }
+        '409':
+          description: El usuario ya registró este código
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ScanAlreadyUsed' }
+        '422':
+          description: Código no válido o no pertenece al evento
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+              example: { error: { code: invalid_code, message: "Este QR no es del DevFest" } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /ranking:
+    get:
+      summary: Ranking de gemas
+      description: |
+        Devuelve el top (por defecto 10) y la entrada del usuario actual. El orden y el desempate los decide el backend.
+        La app lo pide al abrir la pantalla y al tocar refresh.
+      operationId: getRanking
+      parameters:
+        - name: limit
+          in: query
+          schema: { type: integer, default: 10, minimum: 3, maximum: 50 }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Ranking' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+components:
+  securitySchemes:
+    firebaseIdToken:
+      type: http
+      scheme: bearer
+      bearerFormat: Firebase ID token
+
+  responses:
+    Unauthorized:
+      description: Token ausente, inválido o vencido. La app muestra "Tu sesión expiró" y vuelve a Login.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+          example: { error: { code: session_expired, message: "Tu sesión expiró" } }
+
+  schemas:
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+              enum: [unauthenticated, session_expired, invalid_code, already_used, not_found, internal]
+            message: { type: string }
+
+    Event:
+      type: object
+      required: [id, name, edition, date, city, timezone, hashtag]
+      properties:
+        id: { type: string, example: "devfest-lima-2026" }
+        name: { type: string, example: "DevFest Lima" }
+        edition: { type: string, example: "Community Edition" }
+        year: { type: integer, example: 2026 }
+        date: { type: string, format: date, example: "2026-11-21" }
+        city: { type: string, example: "Lima" }
+        timezone: { type: string, example: "America/Lima" }
+        hashtag: { type: string, example: "#DevFestLima26" }
+
+    Track:
+      type: object
+      required: [id, name, color]
+      properties:
+        id: { type: string, enum: [ia, web, mobile, cloud, general] }
+        name: { type: string, example: "IA" }
+        color: { type: string, pattern: "^#[0-9A-Fa-f]{6}$", example: "#4285F4" }
+
+    Speaker:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string, example: "Nombre Apellido" }
+        photoUrl: { type: [string, 'null'], format: uri }
+        role: { type: [string, 'null'], example: "Staff Engineer" }
+        company: { type: [string, 'null'], example: "Empresa" }
+
+    Session:
+      type: object
+      required: [id, type, title, startsAt, endsAt]
+      properties:
+        id: { type: string, example: "t5" }
+        type: { type: string, enum: [talk, break] }
+        title: { type: string, example: "Agentes con la Gemini API: del prototipo al producto" }
+        startsAt: { type: string, format: date-time, example: "2026-11-21T11:30:00-05:00" }
+        endsAt: { type: string, format: date-time, example: "2026-11-21T12:15:00-05:00" }
+        room: { type: [string, 'null'], example: "Sala 1" }
+        trackId: { type: [string, 'null'], enum: [ia, web, mobile, cloud, general, null] }
+        level: { type: [string, 'null'], enum: [Básico, Intermedio, Avanzado, Todos, null] }
+        description: { type: [string, 'null'] }
+        topics:
+          type: array
+          items: { type: string }
+          example: ["Gemini API", "Agentes", "IA"]
+        speakers:
+          type: array
+          description: Vacío = "Ponente por confirmar".
+          items: { $ref: '#/components/schemas/Speaker' }
+        isLive:
+          type: boolean
+          default: false
+          description: Flag del administrador. Si es true, la app muestra "LIVE NOW".
+
+    Agenda:
+      type: object
+      required: [updatedAt, tracks, sessions]
+      properties:
+        updatedAt: { type: string, format: date-time }
+        tracks:
+          type: array
+          items: { $ref: '#/components/schemas/Track' }
+        sessions:
+          type: array
+          items: { $ref: '#/components/schemas/Session' }
+
+    Me:
+      type: object
+      required: [id, fullName, provider, gems, rank, totalParticipants]
+      properties:
+        id: { type: string }
+        fullName: { type: string, example: "Carlos Arizola" }
+        photoUrl: { type: [string, 'null'], format: uri }
+        provider: { type: string, enum: [google, apple, github] }
+        gems: { type: integer, minimum: 0, example: 120 }
+        rank: { type: integer, minimum: 1, example: 12 }
+        totalParticipants: { type: integer, minimum: 1, example: 14 }
+
+    EarnWay:
+      type: object
+      required: [type, title, description, gems]
+      properties:
+        type: { type: string, enum: [talk, stand, challenge] }
+        title: { type: string, example: "Asistir a una charla" }
+        description: { type: string, example: "Escanea el QR al final de cada charla" }
+        gems: { type: integer, minimum: 0, example: 20 }
+
+    Prize:
+      type: object
+      required: [id, title]
+      properties:
+        id: { type: string, example: "polos" }
+        title: { type: string, example: "Polos" }
+        description: { type: [string, 'null'] }
+        forPositions: { type: [string, 'null'], description: "Texto listo para mostrar.", example: "Puestos 1 al 3" }
+        imageUrl: { type: [string, 'null'], format: uri }
+
+    GemsInfo:
+      type: object
+      required: [earnWays, prizes]
+      properties:
+        earnWays:
+          type: array
+          items: { $ref: '#/components/schemas/EarnWay' }
+        prizes:
+          type: array
+          items: { $ref: '#/components/schemas/Prize' }
+
+    ScanSource:
+      type: object
+      required: [type, name]
+      properties:
+        type: { type: string, enum: [talk, stand, challenge] }
+        name: { type: string, example: "Agentes con la Gemini API" }
+
+    ScanAwarded:
+      type: object
+      required: [result, gemsAwarded, newBalance, source]
+      properties:
+        result: { type: string, const: awarded }
+        gemsAwarded: { type: integer, minimum: 1, example: 20 }
+        newBalance: { type: integer, minimum: 0, example: 140 }
+        source: { $ref: '#/components/schemas/ScanSource' }
+
+    ScanAlreadyUsed:
+      type: object
+      required: [result, balance]
+      properties:
+        result: { type: string, const: already_used }
+        balance: { type: integer, minimum: 0, example: 120 }
+        source: { $ref: '#/components/schemas/ScanSource' }
+
+    RankingEntry:
+      type: object
+      required: [position, userId, fullName, gems, isMe]
+      properties:
+        position: { type: integer, minimum: 1 }
+        userId: { type: string }
+        fullName: { type: string, example: "Participante A" }
+        photoUrl: { type: [string, 'null'], format: uri }
+        gems: { type: integer, minimum: 0 }
+        isMe: { type: boolean }
+
+    Ranking:
+      type: object
+      required: [updatedAt, totalParticipants, top, me]
+      properties:
+        updatedAt: { type: string, format: date-time }
+        totalParticipants: { type: integer, minimum: 1, example: 14 }
+        top:
+          type: array
+          description: Ordenado por posición (ya desempatado por el backend).
+          items: { $ref: '#/components/schemas/RankingEntry' }
+        me: { $ref: '#/components/schemas/RankingEntry' }

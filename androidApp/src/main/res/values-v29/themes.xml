@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Android 10+: impide que el sistema oscurezca la app por su cuenta. -->
+    <style name="Theme.DevFest" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/devfest_background</item>
+        <item name="android:forceDarkAllowed">false</item>
+    </style>
+</resources>
