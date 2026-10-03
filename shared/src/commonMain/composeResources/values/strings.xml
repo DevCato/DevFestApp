@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Todos los textos de la app, solo en español (constitución, Principio IV). -->
+<resources>
+    <!-- Comunes -->
+    <string name="app_name">DevFest Lima</string>
+    <string name="brand_community_edition">Community Edition</string>
+    <string name="brand_year">2026</string>
+    <string name="live_now">LIVE NOW</string>
+    <string name="connecting">Conectando…</string>
+    <string name="action_close">Cerrar</string>
+    <string name="action_cancel">Cancelar</string>
+    <string name="action_retry">Reintentar</string>
+    <string name="action_try_again">Intentar de nuevo</string>
+
+    <string name="event_hashtag">#DevFestLima26</string>
+
+    <!-- Aviso legal (FR-005). Los enlaces se aplican sobre los textos legal_terms y legal_privacy. -->
+    <string name="legal_terms">Términos</string>
+    <string name="legal_privacy">Política de privacidad</string>
+    <string name="legal_login">Al continuar aceptas los %1$s y la %2$s.</string>
+
+    <!-- Login (pantalla 01) -->
+    <string name="login_intro">Tu agenda del evento: horarios, salas y charlas en un solo lugar.</string>
+    <string name="login_date">Sáb 21 nov · Lima</string>
+    <string name="login_card_title">Inicia sesión</string>
+    <string name="login_card_text">Elige una cuenta para guardar tu agenda personal.</string>
+    <string name="login_google">Continuar con Google</string>
+    <string name="login_apple">Continuar con Apple</string>
+    <string name="login_github">Continuar con GitHub</string>
+
+    <!-- Datos de sesiones -->
+    <string name="level_basico">Básico</string>
+    <string name="level_intermedio">Intermedio</string>
+    <string name="level_avanzado">Avanzado</string>
+    <string name="level_todos">Todos</string>
+    <string name="duration_minutes">%1$d min</string>
+    <string name="now_label">AHORA</string>
+    <string name="cd_now_line">Hora actual %1$s</string>
+
+    <!-- Navegación inferior -->
+    <string name="tab_agenda">Agenda</string>
+    <string name="tab_my_agenda">Mi agenda</string>
+
+    <!-- Agenda (pantallas 02, 02b, 02c) -->
+    <string name="agenda_title">Agenda</string>
+    <string name="filter_all">Todo</string>
+    <string name="filter_ia">IA</string>
+    <string name="filter_web">Web</string>
+    <string name="filter_mobile">Mobile</string>
+    <string name="filter_cloud">Cloud</string>
+    <string name="agenda_empty_title">Aún no hay charlas</string>
+    <string name="agenda_empty_text">La agenda se está actualizando. En unos minutos verás aquí los horarios y las salas.</string>
+    <string name="track_empty_title">Nada en este track</string>
+    <string name="track_empty_text">No hay charlas programadas para este track. Prueba con otro filtro.</string>
+    <string name="track_empty_action">Ver todas las charlas</string>
+    <string name="offline_title">Sin conexión</string>
+    <string name="offline_text">Necesitas internet para cargar la agenda por primera vez. Revisa tu wifi o tus datos e inténtalo de nuevo.</string>
+
+    <!-- Mi agenda (pantalla 03) -->
+    <string name="my_agenda_title">Mi agenda</string>
+    <plurals name="my_agenda_count">
+        <item quantity="one">%1$d charla guardada</item>
+        <item quantity="other">%1$d charlas guardadas</item>
+    </plurals>
+    <string name="my_agenda_in_progress">EN CURSO AHORA</string>
+    <string name="my_agenda_next">TU PRÓXIMA CHARLA</string>
+    <string name="my_agenda_all">Todas tus charlas</string>
+    <string name="my_agenda_empty_title">Aún no guardas charlas</string>
+    <string name="my_agenda_empty_text">Toca el marcador de cualquier charla en la agenda para armar tu día.</string>
+    <string name="my_agenda_empty_action">Explorar la agenda</string>
+    <string name="conflict_badge">Cruce de horario</string>
+
+    <!-- Detalle de charla (pantalla 04) -->
+    <string name="detail_position">Charla %1$d / %2$d</string>
+    <string name="detail_track">Track %1$s</string>
+    <string name="detail_hour">Hora</string>
+    <string name="detail_room">Sala</string>
+    <string name="detail_duration">Duración</string>
+    <string name="detail_level">Nivel</string>
+    <string name="detail_about">Sobre la charla</string>
+    <string name="detail_speaker">Ponente</string>
+    <string name="detail_speakers">Ponentes</string>
+    <string name="detail_speaker_tbc">Ponente por confirmar</string>
+    <string name="detail_speaker_tbc_text">Se anunciará pronto</string>
+    <string name="detail_topics">Temas</string>
+    <string name="detail_add">Agregar a mi agenda</string>
+    <string name="detail_saved">Guardada en tu agenda</string>
+    <string name="detail_not_found">Esta charla ya no está en la agenda.</string>
+
+    <!-- Mis gemas (pantalla 06) -->
+    <string name="gems_title">Mis gemas</string>
+    <string name="gems_balance">TU SALDO</string>
+    <string name="gems_collected">gemas recolectadas</string>
+    <string name="gems_count_cd">%1$d gemas</string>
+    <string name="gems_scan">Escanear QR</string>
+    <string name="gems_scan_subtitle">Charlas, stands y retos</string>
+    <string name="gems_ranking">Ver ranking</string>
+    <string name="gems_ranking_position">Vas en el puesto #%1$d de %2$d</string>
+    <string name="gems_how_to">Cómo ganar gemas</string>
+    <string name="gems_points">+%1$d</string>
+    <string name="gems_prizes">Premios</string>
+    <string name="gems_prizes_text">Los primeros puestos del ranking se llevan estos premios.</string>
+
+    <!-- Escáner QR -->
+    <string name="scanner_title">Escanea un QR</string>
+    <string name="scanner_hint">Apunta al código de la charla, el stand o el reto.</string>
+    <string name="scanner_validating">Validando código…</string>
+
+    <!-- Ranking (pantalla 07) -->
+    <string name="ranking_title">Ranking</string>
+    <string name="ranking_subtitle">Quién lleva más gemas en el DevFest</string>
+    <string name="ranking_updated_at">Actualizado a las %1$s</string>
+    <string name="ranking_updating">Actualizando…</string>
+    <string name="ranking_updated_now">Actualizado hace un momento</string>
+    <string name="ranking_you">Tú</string>
+    <string name="ranking_your_position">Tu posición</string>
+    <string name="ranking_position_of">#%1$d de %2$d</string>
+    <string name="cd_refresh_ranking">Actualizar ranking</string>
+    <string name="cd_ranking_entry">Puesto %1$d, %2$s, %3$d gemas</string>
+
+    <!-- Perfil y menú (pantalla 05) -->
+    <string name="profile_connected_with">Conectado con %1$s</string>
+    <string name="provider_google">Google</string>
+    <string name="provider_apple">Apple</string>
+    <string name="provider_github">GitHub</string>
+    <string name="profile_menu_agenda">Agenda</string>
+    <string name="profile_menu_agenda_subtitle">Todas las charlas del día</string>
+    <string name="profile_menu_my_agenda">Mi agenda</string>
+    <string name="profile_menu_gems">Mis gemas</string>
+    <plurals name="profile_gems_count">
+        <item quantity="one">%1$d gema recolectada</item>
+        <item quantity="other">%1$d gemas recolectadas</item>
+    </plurals>
+    <string name="profile_menu_ranking">Ranking</string>
+    <string name="profile_rank">Vas en el puesto #%1$d</string>
+    <string name="profile_logout">Cerrar sesión</string>
+    <string name="legal_profile">%1$s · %2$s</string>
+    <string name="cd_profile_photo">Foto de perfil</string>
+
+    <!-- Descripciones para lectores de pantalla de los botones de solo ícono -->
+    <string name="cd_back">Volver</string>
+    <string name="cd_close">Cerrar</string>
+    <string name="cd_refresh">Actualizar</string>
+    <string name="cd_bookmark_add">Guardar en mi agenda</string>
+    <string name="cd_bookmark_remove">Quitar de mi agenda</string>
+    <string name="cd_profile">Abrir mi perfil y menú</string>
+    <string name="cd_gems">Tienes %1$d gemas. Ver mis gemas</string>
+    <string name="cd_gems_loading">Ver mis gemas</string>
+    <string name="cd_close_scanner">Cerrar escáner</string>
+
+    <!-- Modal: no se pudo iniciar sesión -->
+    <string name="modal_login_failed_title">No pudimos iniciar sesión</string>
+    <string name="modal_login_failed_text">Se canceló el inicio de sesión o hubo un problema de conexión. Inténtalo de nuevo.</string>
+    <string name="modal_login_failed_primary">Reintentar</string>
+    <string name="modal_login_failed_secondary">Usar otra cuenta</string>
+
+    <!-- Modal: sesión vencida -->
+    <string name="modal_session_expired_title">Tu sesión expiró</string>
+    <string name="modal_session_expired_text">Por seguridad, vuelve a iniciar sesión. Tus charlas guardadas siguen aquí.</string>
+    <string name="modal_session_expired_primary">Iniciar sesión</string>
+
+    <!-- Modal: confirmar cierre de sesión -->
+    <string name="modal_logout_title">¿Cerrar sesión?</string>
+    <plurals name="modal_logout_text_saved">
+        <item quantity="one">Perderás la charla guardada en tu agenda.</item>
+        <item quantity="other">Perderás las %1$d charlas guardadas en tu agenda.</item>
+    </plurals>
+    <string name="modal_logout_text_empty">Tendrás que volver a iniciar sesión para ver tu agenda, tus gemas y el ranking.</string>
+    <string name="modal_logout_primary">Cerrar sesión</string>
+
+    <!-- Modal: gemas sumadas -->
+    <plurals name="modal_gems_awarded_title">
+        <item quantity="one">¡+%1$d gema!</item>
+        <item quantity="other">¡+%1$d gemas!</item>
+    </plurals>
+    <string name="modal_gems_awarded_text_talk">Charla registrada: %1$s. Tu nuevo saldo es de %2$d gemas.</string>
+    <string name="modal_gems_awarded_text_stand">Stand escaneado: %1$s. Tu nuevo saldo es de %2$d gemas.</string>
+    <string name="modal_gems_awarded_text_challenge">Reto completado: %1$s. Tu nuevo saldo es de %2$d gemas.</string>
+    <string name="modal_gems_awarded_primary">Listo</string>
+    <string name="modal_gems_awarded_secondary">Seguir escaneando</string>
+
+    <!-- Modal: QR ya usado -->
+    <string name="modal_qr_used_title">Ya registraste este código</string>
+    <string name="modal_qr_used_text">Cada QR suma gemas una sola vez. Busca otras charlas, stands o retos.</string>
+    <string name="modal_qr_used_primary">Entendido</string>
+
+    <!-- Modal: QR no válido -->
+    <string name="modal_qr_invalid_title">Este QR no es del DevFest</string>
+    <string name="modal_qr_invalid_text">Escanea un código oficial del evento. Los encontrarás en salas, stands y retos.</string>
+
+    <!-- Modal: sin conexión (escáner) -->
+    <string name="modal_offline_title">Sin conexión</string>
+    <string name="modal_offline_text">Necesitamos internet para validar tu código. Tu agenda sigue disponible sin conexión.</string>
+
+    <!-- Modal: permiso de cámara -->
+    <string name="modal_camera_title">Activa la cámara</string>
+    <string name="modal_camera_text">La usamos solo para escanear los QR del evento. Puedes activarla en la configuración del teléfono.</string>
+    <string name="modal_camera_primary">Abrir configuración</string>
+    <string name="modal_camera_secondary">Ahora no</string>
+
+    <!-- Modal: no se pudo actualizar -->
+    <string name="modal_update_failed_title">No se pudo actualizar</string>
+    <string name="modal_update_failed_text">Revisa tu conexión e inténtalo de nuevo. Mientras tanto verás la última información guardada.</string>
+</resources>

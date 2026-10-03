@@ -9,6 +9,11 @@ plugins {
 }
 
 kotlin {
+    compilerOptions {
+        // kotlin.time.Instant / Clock (research.md, R6)
+        optIn.add("kotlin.time.ExperimentalTime")
+    }
+
     listOf(
         iosArm64(),
         iosSimulatorArm64()
@@ -45,6 +50,8 @@ kotlin {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.compose.uiTooling)
             implementation(libs.koin.android)
+            implementation(libs.androidx.core.ktx)
+            implementation(libs.androidx.activity.compose)
             implementation(libs.ktor.client.okhttp)
             implementation(libs.androidx.camera.camera2)
             implementation(libs.androidx.camera.lifecycle)
