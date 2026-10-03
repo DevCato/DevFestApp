@@ -26,3 +26,7 @@ Thumbs.db
 .vscode/
 DerivedData/
 .build/
+
+# Configuración de Firebase (no se sube al repo)
+google-services.json
+GoogleService-Info.plist

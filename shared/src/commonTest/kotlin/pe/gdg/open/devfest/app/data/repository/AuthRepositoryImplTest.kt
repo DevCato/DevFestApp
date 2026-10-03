@@ -1,10 +1,12 @@
 package pe.gdg.open.devfest.app.data.repository
 
+import kotlinx.coroutines.async
 import kotlinx.coroutines.test.runTest
 import pe.gdg.open.devfest.app.domain.model.AuthProvider
 import pe.gdg.open.devfest.app.domain.model.AuthSession
-import pe.gdg.open.devfest.app.domain.repository.DataError
-import pe.gdg.open.devfest.app.domain.repository.Outcome
+import pe.gdg.open.devfest.app.domain.repository.SignInOutcome
+import pe.gdg.open.devfest.app.platform.AuthSignInResult
+import pe.gdg.open.devfest.app.platform.ControllableAuthGateway
 import pe.gdg.open.devfest.app.platform.FakeAuthGateway
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -35,7 +37,7 @@ class AuthRepositoryImplTest {
 
         val result = repository.signIn(AuthProvider.GITHUB)
 
-        val session = assertIs<Outcome.Success<AuthSession>>(result).value
+        val session = assertIs<SignInOutcome.Success>(result).session
         assertEquals(AuthProvider.GITHUB, session.provider)
         assertEquals(session, repository.session.value)
     }
@@ -46,7 +48,7 @@ class AuthRepositoryImplTest {
 
         val result = repository.signIn(AuthProvider.GOOGLE)
 
-        assertEquals(Outcome.Failure(DataError.Unknown), result)
+        assertEquals(SignInOutcome.Failed, result)
         assertNull(repository.session.value)
     }
 
@@ -56,7 +58,20 @@ class AuthRepositoryImplTest {
 
         val result = repository.signIn(AuthProvider.APPLE)
 
-        assertIs<Outcome.Failure>(result)
+        assertEquals(SignInOutcome.Failed, result)
+        assertNull(repository.session.value)
+    }
+
+    @Test
+    fun accountExistsKeepsTheExistingProviderAndNoSession() = runTest {
+        val gateway = ControllableAuthGateway()
+        val repository = AuthRepositoryImpl(gateway)
+
+        val result = async { repository.signIn(AuthProvider.GITHUB) }
+        testScheduler.runCurrent()
+        gateway.complete(AuthSignInResult.AccountExists(AuthProvider.GOOGLE))
+
+        assertEquals(SignInOutcome.AccountExists(AuthProvider.GOOGLE), result.await())
         assertNull(repository.session.value)
     }
 

@@ -29,4 +29,10 @@ sealed interface AuthSignInResult {
     data object Cancelled : AuthSignInResult
 
     data class Failed(val message: String?) : AuthSignInResult
+
+    /**
+     * El email ya está registrado con otro proveedor (Firebase permite una cuenta por email).
+     * [existingProvider] es `null` si no se pudo averiguar cuál.
+     */
+    data class AccountExists(val existingProvider: AuthProvider?) : AuthSignInResult
 }

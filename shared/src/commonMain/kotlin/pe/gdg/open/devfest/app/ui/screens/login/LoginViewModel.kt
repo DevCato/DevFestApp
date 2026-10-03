@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import pe.gdg.open.devfest.app.domain.model.AuthProvider
 import pe.gdg.open.devfest.app.domain.repository.AuthRepository
-import pe.gdg.open.devfest.app.domain.repository.Outcome
+import pe.gdg.open.devfest.app.domain.repository.SignInOutcome
 import pe.gdg.open.devfest.app.ui.modal.ModalRequest
 
 data class LoginUiState(
@@ -50,8 +50,14 @@ class LoginViewModel(private val auth: AuthRepository) : ViewModel() {
             val result = auth.signIn(provider)
             _state.value = LoginUiState()
             when (result) {
-                is Outcome.Success -> _events.send(LoginEvent.SignedIn)
-                is Outcome.Failure -> _modals.send(
+                is SignInOutcome.Success -> _events.send(LoginEvent.SignedIn)
+                is SignInOutcome.AccountExists -> _modals.send(
+                    ModalRequest.AccountExists(
+                        existingProvider = result.existingProvider,
+                        onSignInWithExisting = { result.existingProvider?.let(::signIn) },
+                    ),
+                )
+                SignInOutcome.Failed -> _modals.send(
                     ModalRequest.LoginFailed(
                         onRetry = { signIn(provider) },
                         onUseOtherAccount = ::useOtherAccount,

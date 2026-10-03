@@ -2,6 +2,7 @@ package pe.gdg.open.devfest.app.ui.modal
 
 import androidx.compose.ui.graphics.Color
 import org.jetbrains.compose.resources.DrawableResource
+import pe.gdg.open.devfest.app.domain.model.AuthProvider
 import pe.gdg.open.devfest.app.domain.model.GemSourceType
 import pe.gdg.open.devfest.app.ui.theme.DevFestColors
 
@@ -83,6 +84,7 @@ class AppModal private constructor(
  */
 sealed interface ModalRequest {
     class LoginFailed(val onRetry: () -> Unit, val onUseOtherAccount: () -> Unit) : ModalRequest
+    class AccountExists(val existingProvider: AuthProvider?, val onSignInWithExisting: () -> Unit) : ModalRequest
     class SessionExpired(val onSignIn: () -> Unit) : ModalRequest
     class ConfirmLogout(val savedTalks: Int, val onConfirm: () -> Unit) : ModalRequest
     class GemsAwarded(

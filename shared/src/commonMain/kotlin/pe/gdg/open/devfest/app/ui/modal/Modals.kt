@@ -3,12 +3,19 @@ package pe.gdg.open.devfest.app.ui.modal
 import androidx.compose.runtime.Composable
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
+import pe.gdg.open.devfest.app.domain.model.AuthProvider
 import pe.gdg.open.devfest.app.domain.model.GemSourceType
 import pe.gdg.open.devfest.app.resources.Res
 import pe.gdg.open.devfest.app.resources.action_cancel
 import pe.gdg.open.devfest.app.resources.action_close
 import pe.gdg.open.devfest.app.resources.action_retry
 import pe.gdg.open.devfest.app.resources.action_try_again
+import pe.gdg.open.devfest.app.resources.modal_account_exists_primary
+import pe.gdg.open.devfest.app.resources.modal_account_exists_primary_unknown
+import pe.gdg.open.devfest.app.resources.modal_account_exists_text
+import pe.gdg.open.devfest.app.resources.modal_account_exists_text_unknown
+import pe.gdg.open.devfest.app.resources.modal_account_exists_title
+import pe.gdg.open.devfest.app.resources.modal_account_exists_title_unknown
 import pe.gdg.open.devfest.app.resources.modal_camera_primary
 import pe.gdg.open.devfest.app.resources.modal_camera_secondary
 import pe.gdg.open.devfest.app.resources.modal_camera_text
@@ -39,11 +46,14 @@ import pe.gdg.open.devfest.app.resources.modal_session_expired_text
 import pe.gdg.open.devfest.app.resources.modal_session_expired_title
 import pe.gdg.open.devfest.app.resources.modal_update_failed_text
 import pe.gdg.open.devfest.app.resources.modal_update_failed_title
+import pe.gdg.open.devfest.app.resources.provider_apple
+import pe.gdg.open.devfest.app.resources.provider_github
+import pe.gdg.open.devfest.app.resources.provider_google
 import pe.gdg.open.devfest.app.ui.components.AppIcons
 import pe.gdg.open.devfest.app.ui.theme.DevFestColors
 
 /**
- * Los nueve casos del catálogo (FR-066, pantalla 08), todos construidos con [AppModal.Builder].
+ * Los casos del catálogo (FR-066, pantalla 08) más el de cuenta existente, todos construidos con [AppModal.Builder].
  * Íconos y colores del prototipo.
  */
 object Modals {
@@ -59,6 +69,39 @@ object Modals {
         .primaryButton(stringResource(Res.string.modal_login_failed_primary), onRetry)
         .secondaryButton(stringResource(Res.string.modal_login_failed_secondary), onUseOtherAccount)
         .build()
+
+    /**
+     * El email ya tiene cuenta con otro proveedor. Si se sabe cuál, el botón principal entra con
+     * ese; si no, solo se avisa.
+     */
+    @Composable
+    fun accountExists(existingProvider: AuthProvider?, onSignInWithExisting: () -> Unit): AppModal {
+        val builder = AppModal.Builder()
+            .icon(AppIcons.Lock)
+            .iconBackground(DevFestColors.SkyTint)
+            .iconTint(DevFestColors.Ink)
+            .shadowColor(DevFestColors.Sky)
+        if (existingProvider == null) {
+            return builder
+                .title(stringResource(Res.string.modal_account_exists_title_unknown))
+                .message(stringResource(Res.string.modal_account_exists_text_unknown))
+                .primaryButton(stringResource(Res.string.modal_account_exists_primary_unknown)) {}
+                .build()
+        }
+        val name = stringResource(
+            when (existingProvider) {
+                AuthProvider.GOOGLE -> Res.string.provider_google
+                AuthProvider.APPLE -> Res.string.provider_apple
+                AuthProvider.GITHUB -> Res.string.provider_github
+            },
+        )
+        return builder
+            .title(stringResource(Res.string.modal_account_exists_title, name))
+            .message(stringResource(Res.string.modal_account_exists_text, name))
+            .primaryButton(stringResource(Res.string.modal_account_exists_primary, name), onSignInWithExisting)
+            .secondaryButton(stringResource(Res.string.action_close))
+            .build()
+    }
 
     /** No se puede cerrar tocando fuera: la única salida es volver a iniciar sesión. */
     @Composable
@@ -187,6 +230,7 @@ object Modals {
 @Composable
 fun ModalRequest.toAppModal(): AppModal = when (this) {
     is ModalRequest.LoginFailed -> Modals.loginFailed(onRetry, onUseOtherAccount)
+    is ModalRequest.AccountExists -> Modals.accountExists(existingProvider, onSignInWithExisting)
     is ModalRequest.SessionExpired -> Modals.sessionExpired(onSignIn)
     is ModalRequest.ConfirmLogout -> Modals.confirmLogout(savedTalks, onConfirm)
     is ModalRequest.GemsAwarded ->

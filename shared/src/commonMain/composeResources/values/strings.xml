@@ -154,6 +154,14 @@
     <string name="modal_login_failed_primary">Reintentar</string>
     <string name="modal_login_failed_secondary">Usar otra cuenta</string>
 
+    <!-- Modal: el email ya tiene cuenta con otro proveedor -->
+    <string name="modal_account_exists_title">Ya tienes una cuenta con %1$s</string>
+    <string name="modal_account_exists_text">Tu correo ya está registrado con %1$s. Entra con %1$s para continuar.</string>
+    <string name="modal_account_exists_primary">Entrar con %1$s</string>
+    <string name="modal_account_exists_title_unknown">Ya tienes una cuenta</string>
+    <string name="modal_account_exists_text_unknown">Tu correo ya está registrado con otro método. Entra con el que usaste la primera vez.</string>
+    <string name="modal_account_exists_primary_unknown">Entendido</string>
+
     <!-- Modal: sesión vencida -->
     <string name="modal_session_expired_title">Tu sesión expiró</string>
     <string name="modal_session_expired_text">Por seguridad, vuelve a iniciar sesión. Tus charlas guardadas siguen aquí.</string>

@@ -129,7 +129,7 @@ final class FirebaseAuthGateway: NSObject, AuthGateway {
 
     private func signInWithGitHub(_ done: @escaping (AuthSignInResult) -> Void) {
         let provider = OAuthProvider(providerID: "github.com")
-        provider.scopes = ["read:user"]
+        provider.scopes = ["read:user", "user:email"]
         gitHubProvider = provider
         provider.getCredentialWith(nil) { [weak self] credential, error in
             guard let self else { return }

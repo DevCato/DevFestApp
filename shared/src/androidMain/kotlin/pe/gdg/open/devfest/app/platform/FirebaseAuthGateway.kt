@@ -1,6 +1,7 @@
 package pe.gdg.open.devfest.app.platform
 
 import android.app.Activity
+import android.util.Log
 import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
@@ -11,6 +12,7 @@ import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
+import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.OAuthProvider
@@ -52,20 +54,32 @@ class FirebaseAuthGateway(
                 val user = when (provider) {
                     AuthProvider.GOOGLE -> signInWithGoogle(activity)
                     AuthProvider.APPLE -> signInWithProvider(activity, APPLE_PROVIDER_ID, listOf("email", "name"))
-                    AuthProvider.GITHUB -> signInWithProvider(activity, GITHUB_PROVIDER_ID, listOf("read:user"))
+                    AuthProvider.GITHUB -> signInWithProvider(activity, GITHUB_PROVIDER_ID, listOf("read:user", "user:email"))
                 }
+                if (user == null) Log.w(TAG, "signIn($provider): Firebase no devolvió usuario")
                 user?.let { AuthSignInResult.Success(it.toSession(provider)) } ?: AuthSignInResult.Failed(null)
             } catch (e: GetCredentialCancellationException) {
+                Log.i(TAG, "signIn($provider): cancelado por el usuario")
                 AuthSignInResult.Cancelled
             } catch (e: CancellationException) {
                 throw e
-            } catch (e: FirebaseAuthException) {
-                if (e.errorCode == ERROR_WEB_CONTEXT_CANCELED) {
-                    AuthSignInResult.Cancelled
+            } catch (e: FirebaseAuthUserCollisionException) {
+                Log.w(TAG, "signIn($provider): ${e.errorCode} - email=${e.email}")
+                if (e.errorCode == ERROR_ACCOUNT_EXISTS) {
+                    AuthSignInResult.AccountExists(existingProviderFor(e.email, provider))
                 } else {
                     AuthSignInResult.Failed(e.message)
                 }
+            } catch (e: FirebaseAuthException) {
+                if (e.errorCode == ERROR_WEB_CONTEXT_CANCELED) {
+                    Log.i(TAG, "signIn($provider): flujo web cerrado por el usuario")
+                    AuthSignInResult.Cancelled
+                } else {
+                    Log.e(TAG, "signIn($provider) falló: ${e.errorCode} - ${e.message}", e)
+                    AuthSignInResult.Failed(e.message)
+                }
             } catch (e: Exception) {
+                Log.e(TAG, "signIn($provider) falló: ${e::class.simpleName} - ${e.message}", e)
                 AuthSignInResult.Failed(e.message)
             }
             onResult(result)
@@ -91,12 +105,36 @@ class FirebaseAuthGateway(
         scopes: List<String>,
     ): FirebaseUser? {
         // Si Android cerró la app durante el flujo web, el resultado queda pendiente.
-        val task = auth.pendingAuthResult
+        val pending = auth.pendingAuthResult
+        Log.d(TAG, "signInWithProvider($providerId, $scopes): pendiente=${pending != null}")
+        val task = pending
             ?: auth.startActivityForSignInWithProvider(
                 activity,
                 OAuthProvider.newBuilder(providerId).setScopes(scopes).build(),
             )
         return task.await().user
+    }
+
+    /**
+     * Con qué proveedor ya está registrado [email]. Devuelve `null` si no se puede saber: con la
+     * protección contra enumeración de emails de Firebase activa, la consulta llega vacía.
+     */
+    @Suppress("DEPRECATION")
+    private suspend fun existingProviderFor(email: String?, attempted: AuthProvider): AuthProvider? {
+        if (email.isNullOrBlank()) return null
+        val methods = runCatching { auth.fetchSignInMethodsForEmail(email).await().signInMethods }
+            .onFailure { Log.w(TAG, "fetchSignInMethodsForEmail falló", it) }
+            .getOrNull()
+            .orEmpty()
+        Log.d(TAG, "Métodos registrados para el email: $methods")
+        return methods.mapNotNull(::providerFromId).firstOrNull { it != attempted }
+    }
+
+    private fun providerFromId(id: String): AuthProvider? = when (id) {
+        GOOGLE_PROVIDER_ID -> AuthProvider.GOOGLE
+        APPLE_PROVIDER_ID -> AuthProvider.APPLE
+        GITHUB_PROVIDER_ID -> AuthProvider.GITHUB
+        else -> null
     }
 
     override fun signOut() {
@@ -132,9 +170,12 @@ class FirebaseAuthGateway(
     }
 
     private companion object {
+        const val TAG = "DevFestAuth"
+        const val GOOGLE_PROVIDER_ID = "google.com"
         const val APPLE_PROVIDER_ID = "apple.com"
         const val GITHUB_PROVIDER_ID = "github.com"
         const val ERROR_WEB_CONTEXT_CANCELED = "ERROR_WEB_CONTEXT_CANCELED"
+        const val ERROR_ACCOUNT_EXISTS = "ERROR_ACCOUNT_EXISTS_WITH_DIFFERENT_CREDENTIAL"
     }
 }
 

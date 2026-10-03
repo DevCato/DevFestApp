@@ -7,8 +7,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import pe.gdg.open.devfest.app.domain.model.AuthProvider
 import pe.gdg.open.devfest.app.domain.model.AuthSession
 import pe.gdg.open.devfest.app.domain.repository.AuthRepository
-import pe.gdg.open.devfest.app.domain.repository.DataError
-import pe.gdg.open.devfest.app.domain.repository.Outcome
+import pe.gdg.open.devfest.app.domain.repository.SignInOutcome
 import pe.gdg.open.devfest.app.platform.AuthGateway
 import pe.gdg.open.devfest.app.platform.AuthSignInResult
 import kotlin.coroutines.resume
@@ -20,7 +19,7 @@ class AuthRepositoryImpl(private val gateway: AuthGateway) : AuthRepository {
     override val session: StateFlow<AuthSession?> = _session.asStateFlow()
 
     /** Cancelar el flujo del proveedor también es un fallo: se muestra el mismo modal. */
-    override suspend fun signIn(provider: AuthProvider): Outcome<AuthSession> {
+    override suspend fun signIn(provider: AuthProvider): SignInOutcome {
         val result = suspendCancellableCoroutine { continuation ->
             gateway.signIn(provider) { result ->
                 if (continuation.isActive) continuation.resume(result)
@@ -29,9 +28,10 @@ class AuthRepositoryImpl(private val gateway: AuthGateway) : AuthRepository {
         return when (result) {
             is AuthSignInResult.Success -> {
                 _session.value = result.session
-                Outcome.Success(result.session)
+                SignInOutcome.Success(result.session)
             }
-            AuthSignInResult.Cancelled, is AuthSignInResult.Failed -> Outcome.Failure(DataError.Unknown)
+            is AuthSignInResult.AccountExists -> SignInOutcome.AccountExists(result.existingProvider)
+            AuthSignInResult.Cancelled, is AuthSignInResult.Failed -> SignInOutcome.Failed
         }
     }
 

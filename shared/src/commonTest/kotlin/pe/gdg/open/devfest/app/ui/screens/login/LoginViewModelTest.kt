@@ -106,6 +106,36 @@ class LoginViewModelTest {
     }
 
     @Test
+    fun accountExistsShowsModalThatSignsInWithExistingProvider() = runTest {
+        val modals = mutableListOf<ModalRequest>()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.modals.toList(modals) }
+        viewModel.signIn(AuthProvider.GITHUB)
+        gateway.complete(AuthSignInResult.AccountExists(AuthProvider.GOOGLE))
+
+        val modal = assertIs<ModalRequest.AccountExists>(modals.single())
+        assertEquals(AuthProvider.GOOGLE, modal.existingProvider)
+        assertFalse(viewModel.state.value.busy)
+
+        modal.onSignInWithExisting()
+
+        assertEquals(2, gateway.signInCalls)
+        assertEquals(AuthProvider.GOOGLE, viewModel.state.value.connecting)
+    }
+
+    @Test
+    fun accountExistsWithUnknownProviderOnlyInforms() = runTest {
+        val modals = mutableListOf<ModalRequest>()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.modals.toList(modals) }
+        viewModel.signIn(AuthProvider.GITHUB)
+        gateway.complete(AuthSignInResult.AccountExists(null))
+
+        (modals.single() as ModalRequest.AccountExists).onSignInWithExisting()
+
+        assertEquals(1, gateway.signInCalls)
+        assertFalse(viewModel.state.value.busy)
+    }
+
+    @Test
     fun retryFromModalSignsInAgainWithSameProvider() = runTest {
         val modals = mutableListOf<ModalRequest>()
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.modals.toList(modals) }
